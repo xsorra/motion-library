@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motion Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --blue: #1a6cff;
+  --blue-dim: rgba(26,108,255,0.12);
+  --blue-border: rgba(26,108,255,0.2);
+  --dark: #0a0a14;
+  --white: #ffffff;
+  --glass: rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.9);
+  --muted: rgba(10,10,20,0.45);
+  --card-bg: rgba(255,255,255,0.65);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button, a { cursor: pointer; }
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #eef2ff;
+  min-height: 100vh;
+  overflow-x: hidden;
+  
+  color: var(--dark);
+}
+
+/* ─── NAV ─── */
+nav { position: sticky; top: 0; z-index: 100; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(238,242,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.7); animation: fadeDown 0.7s 0.2s var(--ease-out) both; }
+.nav-logo { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dark); display: flex; align-items: center; gap: 10px; }
+.nav-logo-dot { width: 8px; height: 8px; background: var(--blue); border-radius: 50%; animation: pulse 2.5s infinite; }
+nav a { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.3s ease;  }
+nav a:hover { color: var(--dark); }
+.nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+/* ─── HERO ─── */
+.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 140px 48px 80px; position: relative; }
+.hero-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s var(--ease-out) 0.3s forwards; }
+.hero-label .dot { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; animation: pulse 2.5s infinite; }
+.hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(48px, 8vw, 96px); font-weight: 300; letter-spacing: -0.04em; line-height: 1.0; opacity: 0; transform: translateY(40px); animation: fadeUp 1s var(--ease-out) 0.5s forwards; }
+.hero h1 em { font-style: italic; color: var(--blue); }
+.hero-sub { margin-top: 20px; font-size: 15px; color: var(--muted); font-weight: 300; max-width: 440px; line-height: 1.7; opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s var(--ease-out) 0.7s forwards; }
+.scroll-cue { position: absolute; bottom: 48px; left: 48px; display: flex; align-items: center; gap: 12px; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); opacity: 0; animation: fadeUp 0.8s var(--ease-out) 1s forwards; }
+.scroll-cue .line { width: 40px; height: 1px; background: rgba(26,108,255,0.3); animation: pulse 2s ease infinite; }
+
+/* ─── SECTIONS ─── */
+.section { padding: 100px 48px; }
+.section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; }
+.section-header h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 64px); font-weight: 300; letter-spacing: -0.04em; line-height: 1.0; }
+.section-header h2 em { font-style: italic; color: var(--blue); }
+.section-title-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-title-label .dot { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; }
+.section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.section-divider { height: 1px; background: rgba(10,10,20,0.06); margin: 0 48px; }
+
+/* ─── GRID + CARD ─── */
+.component-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+.component-card { background: var(--card-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 32px; display: flex; flex-direction: column; gap: 24px; box-shadow: 0 4px 24px rgba(26,108,255,0.06); transition: box-shadow 0.3s ease; }
+.component-card:hover { box-shadow: 0 8px 40px rgba(26,108,255,0.1); }
+.card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+.card-label::after { content: ''; flex: 1; height: 1px; background: rgba(10,10,20,0.08); }
+.card-demo { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 120px; }
+.card-info { font-size: 12px; color: var(--muted); line-height: 1.6; padding-top: 16px; border-top: 1px solid rgba(10,10,20,0.07); }
+.card-info code { display: inline-block; margin-top: 6px; padding: 4px 10px; background: rgba(26,108,255,0.07); border: 1px solid rgba(26,108,255,0.15); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; color: var(--blue); letter-spacing: 0.02em; }
+.code-wrap { display: inline-flex; align-items: stretch; gap: 0; margin-top: 6px; }
+.code-wrap code { margin-top: 0; border-radius: 8px 0 0 8px; border-right: none; }
+.copy-btn { margin-top: 0; padding: 0 8px; background: rgba(26,108,255,0.07); border: 1px solid rgba(26,108,255,0.15); border-radius: 0 8px 8px 0;  display: flex; align-items: center; justify-content: center; transition: all 0.25s ease; }
+.copy-btn:hover { background: rgba(26,108,255,0.15); }
+.copy-btn svg { width: 12px; height: 12px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.copy-btn.copied svg { stroke: #22c55e; }
+.copy-btn.copied { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.2); }
+
+/* Toast */
+.toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.9); color: var(--dark); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 14px; box-shadow: 0 8px 32px rgba(26,108,255,0.12); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out); display: flex; align-items: center; gap: 8px; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast svg { width: 16px; height: 16px; stroke: #22c55e; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ═══ BUTTONS ═══ */
+.btn-scale { padding: 14px 36px; background: var(--blue); color: var(--white); border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: transform 0.5s var(--spring), box-shadow 0.4s ease; }
+.btn-scale:hover { transform: scale(1.06); box-shadow: 0 8px 32px rgba(26,108,255,0.3); }
+.btn-scale:active { transform: scale(0.96); transition-duration: 0.15s; }
+
+.btn-magnetic { position: relative; padding: 14px 36px; background: rgba(255,255,255,0.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 14px; box-shadow: 0 2px 16px rgba(26,108,255,0.06), inset 0 1px 0 rgba(255,255,255,0.9); color: var(--dark); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  overflow: hidden; transition: color 0.4s var(--smooth), border-color 0.4s ease, box-shadow 0.4s ease; z-index: 1; }
+.btn-magnetic::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: var(--blue); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.6s var(--smooth), height 0.6s var(--smooth); z-index: -1; }
+.btn-magnetic:hover { color: var(--white); border-color: var(--blue); box-shadow: 0 8px 32px rgba(26,108,255,0.2); }
+.btn-magnetic:hover::before { width: 300px; height: 300px; }
+
+.btn-slide { position: relative; padding: 0 36px; background: var(--blue); border: none; border-radius: 14px; color: var(--white); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  overflow: hidden; height: 48px; }
+.btn-slide-inner { display: flex; flex-direction: column; transition: transform 0.5s var(--smooth); }
+.btn-slide-inner span { height: 48px; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+.btn-slide:hover .btn-slide-inner { translateY(-48px) / 0.5s smooth; }
+
+.btn-draw { position: relative; padding: 14px 36px; background: transparent; border: 1px solid rgba(10,10,20,0.15); border-radius: 14px; color: var(--dark); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: border-color 0.4s ease, color 0.4s ease; }
+.btn-draw svg { position: absolute; top: -1px; left: -1px; width: calc(100% + 2px); height: calc(100% + 2px); }
+.btn-draw rect { fill: none; stroke: var(--blue); stroke-width: 2; rx: 14; ry: 14; stroke-dasharray: 600; stroke-dashoffset: 600; transition: stroke-dashoffset 0.8s var(--smooth); }
+.btn-draw:hover { border-color: transparent; color: var(--blue); }
+.btn-draw:hover rect { stroke-dashoffset: 0; }
+
+.btn-glow { padding: 14px 36px; background: rgba(255,255,255,0.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(26,108,255,0.25); border-radius: 14px; box-shadow: 0 2px 16px rgba(26,108,255,0.06), inset 0 1px 0 rgba(255,255,255,0.9); color: var(--blue); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: background 0.4s ease, box-shadow 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
+.btn-glow:hover { background: var(--blue); color: var(--white); border-color: var(--blue); box-shadow: 0 0 30px rgba(26,108,255,0.35), 0 0 80px rgba(26,108,255,0.12); }
+
+.btn-arrow { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: rgba(255,255,255,0.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 14px; box-shadow: 0 2px 16px rgba(26,108,255,0.06), inset 0 1px 0 rgba(255,255,255,0.9); color: var(--dark); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: gap 0.4s var(--smooth), box-shadow 0.4s ease; }
+.btn-arrow .arrow { display: inline-block; transition: transform 0.4s var(--smooth); color: var(--blue); }
+.btn-arrow:hover { gap: 18px; box-shadow: 0 8px 28px rgba(26,108,255,0.1), inset 0 1px 0 rgba(255,255,255,1); }
+.btn-arrow:hover .arrow { transform: translateX(4px); }
+
+/* 07 — Fill Left (wipe from left) */
+.btn-fill-left { position: relative; padding: 14px 36px; background: transparent; border: 1px solid rgba(26,108,255,0.3); border-radius: 14px; color: var(--blue); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  overflow: hidden; z-index: 1; transition: color 0.4s var(--smooth), border-color 0.4s ease; }
+.btn-fill-left::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 100%; background: var(--blue); z-index: -1; transition: width 0.5s var(--smooth); }
+.btn-fill-left:hover { color: var(--white); border-color: var(--blue); }
+.btn-fill-left:hover::before { width: 100%; }
+
+/* 08 — Fill Bottom (wipe from bottom) */
+.btn-fill-bottom { position: relative; padding: 14px 36px; background: transparent; border: 1px solid rgba(26,108,255,0.3); border-radius: 14px; color: var(--blue); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  overflow: hidden; z-index: 1; transition: color 0.4s var(--smooth), border-color 0.4s ease; }
+.btn-fill-bottom::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0; background: var(--blue); z-index: -1; transition: height 0.5s var(--smooth); }
+.btn-fill-bottom:hover { color: var(--white); border-color: var(--blue); }
+.btn-fill-bottom:hover::before { height: 100%; }
+
+/* 09 — Fill Center (expand from center) */
+.btn-fill-center { position: relative; padding: 14px 36px; background: transparent; border: 1px solid rgba(26,108,255,0.3); border-radius: 14px; color: var(--blue); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  overflow: hidden; z-index: 1; transition: color 0.4s var(--smooth), border-color 0.4s ease; }
+.btn-fill-center::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: var(--blue); z-index: -1; transition: width 0.5s var(--smooth), height 0.5s var(--smooth), top 0.5s var(--smooth), left 0.5s var(--smooth); }
+.btn-fill-center:hover { color: var(--white); border-color: var(--blue); }
+.btn-fill-center:hover::before { width: 100%; height: 100%; top: 0; left: 0; }
+
+/* 10 — Outline Shrink */
+.btn-outline-shrink { padding: 14px 36px; background: var(--blue); color: var(--white); border: 2px solid var(--blue); border-radius: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: background 0.4s var(--smooth), color 0.4s var(--smooth), box-shadow 0.4s ease; }
+.btn-outline-shrink:hover { background: transparent; color: var(--blue); box-shadow: inset 0 0 0 2px var(--blue); }
+
+/* 11 — Soft Press */
+.btn-soft-press { padding: 14px 36px; background: rgba(26,108,255,0.1); color: var(--blue); border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: all 0.3s var(--smooth); box-shadow: 0 4px 16px rgba(26,108,255,0.1); }
+.btn-soft-press:hover { background: rgba(26,108,255,0.15); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,108,255,0.15); }
+.btn-soft-press:active { transform: translateY(1px); box-shadow: 0 2px 8px rgba(26,108,255,0.1); transition-duration: 0.1s; }
+
+/* 14 — Fade */
+.btn-fade-solid { padding: 14px 36px; background: var(--blue); border: 1px solid var(--blue); border-radius: 14px; color: var(--white); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: all 0.6s ease-in-out; }
+.btn-fade-solid:hover { background: transparent; color: var(--blue); }
+
+/* ═══ LINKS ═══ */
+.link-demo { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+.link-slide { position: relative; color: var(--dark); text-decoration: none; font-size: 16px; font-weight: 500; padding-bottom: 4px;  }
+.link-slide::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1.5px; background: var(--blue); transition: width 0.5s var(--smooth); }
+.link-slide:hover::after { width: 100%; }
+
+.link-swipe { position: relative; color: var(--dark); text-decoration: none; font-size: 16px; font-weight: 500; padding-bottom: 4px;  }
+.link-swipe::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1.5px; background: rgba(10,10,20,0.15); transform: scaleX(1); transform-origin: right; transition: transform 0.5s var(--smooth); }
+.link-swipe::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1.5px; background: var(--blue); transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--smooth); }
+.link-swipe:hover::after { transform: scaleX(0); transform-origin: left; }
+.link-swipe:hover::before { transform: scaleX(1); }
+
+.link-flood { position: relative; color: var(--dark); text-decoration: none; font-size: 16px; font-weight: 500; padding: 2px 4px;  background-image: linear-gradient(var(--blue), var(--blue)); background-size: 0% 100%; background-repeat: no-repeat; background-position: left; border-radius: 4px; transition: background-size 0.5s var(--smooth), color 0.4s ease; }
+.link-flood:hover { background-size: 100% 100%; color: var(--white); }
+
+.link-bracket { position: relative; color: var(--dark); text-decoration: none; font-size: 16px; font-weight: 500; padding: 0 6px;  }
+.link-bracket::before, .link-bracket::after { font-weight: 300; color: var(--blue); transition: opacity 0.3s ease, transform 0.4s var(--spring); opacity: 0; }
+.link-bracket::before { content: '['; transform: translateX(8px); display: inline-block; margin-right: 2px; }
+.link-bracket::after { content: ']'; transform: translateX(-8px); display: inline-block; margin-left: 2px; }
+.link-bracket:hover::before, .link-bracket:hover::after { opacity: 1; transform: translateX(0); }
+
+.link-elastic { position: relative; color: var(--dark); text-decoration: none; font-size: 16px; font-weight: 500; padding-bottom: 4px;  }
+.link-elastic::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: var(--blue); border-radius: 2px; transition: width 0.5s var(--spring), left 0.5s var(--spring); }
+.link-elastic:hover::after { width: 100%; left: 0; }
+
+.link-strike { position: relative; color: var(--dark); text-decoration: none; font-size: 16px; font-weight: 500;  }
+.link-strike::after { content: ''; position: absolute; top: 50%; left: 0; width: 0; height: 1.5px; background: var(--blue); transition: width 0.5s var(--smooth); }
+.link-strike:hover::after { width: 100%; }
+.link-strike:hover { color: var(--muted); transition: color 0.4s ease 0.15s; }
+
+/* ═══ TEXT EFFECTS ═══ */
+.text-blur { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; filter: blur(6px); transition: filter 0.6s var(--smooth);  color: var(--blue); }
+.text-blur:hover { filter: blur(0px); }
+
+.text-spread { font-size: 16px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; transition: letter-spacing 0.5s var(--spring), color 0.4s ease;  }
+.text-spread:hover { letter-spacing: 0.5em; color: var(--blue); }
+
+.text-stagger { font-size: 20px; font-weight: 600;  display: inline-flex; text-transform: uppercase; letter-spacing: 0.04em; }
+.text-stagger span { display: inline-block; transition: transform 0.4s var(--spring), color 0.3s ease; }
+.text-stagger:hover span { color: var(--blue); }
+.text-stagger:hover span:nth-child(1) { transform: translateY(-6px); transition-delay: 0ms; }
+.text-stagger:hover span:nth-child(2) { transform: translateY(-6px); transition-delay: 30ms; }
+.text-stagger:hover span:nth-child(3) { transform: translateY(-6px); transition-delay: 60ms; }
+.text-stagger:hover span:nth-child(4) { transform: translateY(-6px); transition-delay: 90ms; }
+.text-stagger:hover span:nth-child(5) { transform: translateY(-6px); transition-delay: 120ms; }
+.text-stagger:hover span:nth-child(6) { transform: translateY(-6px); transition-delay: 150ms; }
+.text-stagger:hover span:nth-child(7) { transform: translateY(-6px); transition-delay: 180ms; }
+
+.text-glitch { font-size: 18px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; position: relative;  }
+.text-glitch::before, .text-glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; opacity: 0; }
+.text-glitch::before { color: #ff3366; }
+.text-glitch::after { color: #1a6cff; }
+.text-glitch:hover::before { opacity: 0.7; animation: glitch1 0.3s infinite; }
+.text-glitch:hover::after { opacity: 0.7; animation: glitch2 0.3s infinite; }
+@keyframes glitch1 { 0%{clip-path:inset(40% 0 61% 0);transform:translate(-2px,2px)}20%{clip-path:inset(92% 0 1% 0);transform:translate(2px,-1px)}40%{clip-path:inset(43% 0 1% 0);transform:translate(-1px,3px)}60%{clip-path:inset(25% 0 58% 0);transform:translate(3px,1px)}80%{clip-path:inset(54% 0 7% 0);transform:translate(-3px,-2px)}100%{clip-path:inset(58% 0 43% 0);transform:translate(0)} }
+@keyframes glitch2 { 0%{clip-path:inset(65% 0 13% 0);transform:translate(2px,-1px)}20%{clip-path:inset(15% 0 62% 0);transform:translate(-2px,2px)}40%{clip-path:inset(78% 0 2% 0);transform:translate(1px,-3px)}60%{clip-path:inset(2% 0 72% 0);transform:translate(-3px,1px)}80%{clip-path:inset(34% 0 28% 0);transform:translate(3px,2px)}100%{clip-path:inset(17% 0 55% 0);transform:translate(0)} }
+
+/* ═══ INPUT INTERACTIONS ═══ */
+.input-demo { width: 100%; display: flex; flex-direction: column; gap: 16px; }
+
+/* Floating Label */
+.float-group { position: relative; }
+.float-input { width: 100%; padding: 18px 16px 8px; background: rgba(255,255,255,0.45); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.85); border-radius: 14px; box-shadow: 0 2px 12px rgba(26,108,255,0.05), inset 0 1px 0 rgba(255,255,255,0.9); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: var(--dark); outline: none;  transition: all 0.25s var(--ease-out); }
+.float-input::placeholder { color: transparent; }
+.float-input:focus { background: rgba(255,255,255,0.65); border-color: rgba(26,108,255,0.3); box-shadow: 0 0 0 3px rgba(26,108,255,0.07), 0 4px 16px rgba(26,108,255,0.08); }
+.float-label { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--muted); pointer-events: none; transition: all 0.25s var(--ease-out); font-weight: 400; }
+.float-input:focus ~ .float-label, .float-input:not(:placeholder-shown) ~ .float-label { top: 10px; transform: translateY(0); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); }
+
+/* Search Expand */
+.search-wrap { display: flex; align-items: center; position: relative; }
+.search-input { width: 44px; padding: 12px 12px 12px 40px; background: rgba(255,255,255,0.55); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 14px; box-shadow: 0 2px 12px rgba(26,108,255,0.05), inset 0 1px 0 rgba(255,255,255,0.9); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--dark); outline: none;  transition: width 0.5s var(--ease-out), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+.search-input:focus { width: 260px; background: rgba(255,255,255,0.7); border-color: rgba(26,108,255,0.3); box-shadow: 0 0 0 3px rgba(26,108,255,0.07), 0 4px 16px rgba(26,108,255,0.08); }
+.search-input::placeholder { color: transparent; transition: color 0.3s ease 0.2s; }
+.search-input:focus::placeholder { color: var(--muted); }
+.search-icon { position: absolute; left: 13px; font-size: 20px; color: var(--muted); pointer-events: none; transition: color 0.3s ease; line-height: 1; }
+.search-input:focus ~ .search-icon { color: var(--blue); }
+
+/* Shake Error */
+.error-group { position: relative; }
+.error-input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.45); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.85); border-radius: 14px; box-shadow: 0 2px 12px rgba(26,108,255,0.05), inset 0 1px 0 rgba(255,255,255,0.9); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: var(--dark); outline: none;  transition: all 0.25s var(--ease-out); }
+.error-input.shake { animation: shake 0.5s var(--ease-out); border-color: #e53e3e; box-shadow: 0 0 0 3px rgba(229,62,62,0.1); }
+.error-msg { font-size: 11px; color: #e53e3e; font-weight: 500; margin-top: 6px; opacity: 0; transform: translateY(-4px); transition: all 0.3s var(--ease-out); }
+.error-msg.show { opacity: 1; transform: translateY(0); }
+.error-btn { margin-top: 8px; padding: 10px 24px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.9); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--dark);  transition: all 0.2s; letter-spacing: 0.04em; text-transform: uppercase; }
+.error-btn:hover { background: rgba(255,255,255,0.8); }
+@keyframes shake { 0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(6px)}45%{transform:translateX(-4px)}60%{transform:translateX(2px)}75%{transform:translateX(-1px)} }
+
+/* ═══ CARD HOVERS ═══ */
+.hover-card { width: 100%; height: 160px; background: rgba(255,255,255,0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.85); border-radius: 18px; box-shadow: 0 2px 16px rgba(26,108,255,0.05), inset 0 1px 0 rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--muted);  position: relative; overflow: hidden; }
+.card-tilt { transition: transform 0.4s var(--smooth), box-shadow 0.4s ease; transform-style: preserve-3d; perspective: 800px; }
+.card-tilt:hover { transform: rotateX(-4deg) rotateY(6deg) scale(1.02); box-shadow: -8px 12px 40px rgba(26,108,255,0.12); }
+.card-gradient { border: 1px solid transparent; background-clip: padding-box; }
+.card-gradient::before { content: ''; position: absolute; inset: -1px; border-radius: 18px; padding: 1px; background: conic-gradient(from 0deg, var(--blue), #ff6b9d, #4ecdc4, var(--blue)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity 0.6s ease; }
+.card-gradient:hover::before { opacity: 1; animation: rotateBorder 4s linear infinite; }
+@keyframes rotateBorder { to { transform: rotate(360deg); filter: hue-rotate(360deg); } }
+.card-spotlight { transition: background 0.3s ease; }
+.card-spotlight .spotlight { position: absolute; inset: 0; border-radius: 18px; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+.card-spotlight:hover .spotlight { opacity: 1; }
+.card-expand { transition: transform 0.6s var(--smooth), border-radius 0.6s var(--smooth); }
+.card-expand:hover { transform: scale(1.05); border-radius: 28px; }
+
+/* ═══ ACCORDION ═══ */
+.accordion { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.accordion-item { background: rgba(255,255,255,0.45); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.85); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(26,108,255,0.04); transition: box-shadow 0.3s ease; }
+.accordion-item:hover { box-shadow: 0 4px 20px rgba(26,108,255,0.08); }
+.accordion-trigger { width: 100%; padding: 16px 20px; background: none; border: none; display: flex; align-items: center; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: var(--dark);  transition: color 0.3s ease; }
+.accordion-trigger:hover { color: var(--blue); }
+.accordion-chevron { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; transition: transform 0.6s var(--ease-out), color 0.4s ease; color: var(--muted); font-size: 18px; font-weight: 300; flex-shrink: 0; }
+.accordion-item.open .accordion-chevron { color: var(--blue); }
+.accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.8s var(--ease-out); }
+.accordion-body-inner { padding: 0 20px 16px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+/* ═══ IMAGE HOVERS ═══ */
+.img-hover-wrap { width: 100%; height: 200px; border-radius: 14px; overflow: hidden; position: relative;  }
+.img-hover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-scale img { transition: transform 1.2s var(--smooth); }
+.img-scale:hover img { transform: scale(1.05); }
+.img-overlay::after { content: ''; position: absolute; inset: 0; background: rgba(26,108,255,0.0); transition: background 0.5s var(--smooth); pointer-events: none; }
+.img-overlay:hover::after { background: rgba(26,108,255,0.35); }
+.img-overlay img { transition: transform 0.6s var(--smooth); }
+.img-overlay:hover img { transform: scale(1.05); }
+.img-lighten img { transition: filter 0.5s var(--smooth), transform 0.6s var(--smooth); }
+.img-lighten:hover img { filter: brightness(1.3); transform: scale(1.03); }
+.img-grayscale img { filter: grayscale(100%); transition: filter 0.6s var(--smooth), transform 0.6s var(--smooth); }
+.img-grayscale:hover img { filter: grayscale(0%); transform: scale(1.03); }
+.img-blur img { filter: blur(4px); transition: filter 0.5s var(--smooth), transform 0.6s var(--smooth); }
+.img-blur:hover img { filter: blur(0px); transform: scale(1.05); }
+.img-caption img { transition: transform 0.6s var(--smooth); }
+.img-caption:hover img { transform: scale(1.06); }
+.img-caption-text { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: linear-gradient(transparent, rgba(10,10,20,0.7)); color: var(--white); font-size: 13px; font-weight: 500; transform: translateY(100%); transition: transform 0.5s var(--smooth); }
+.img-caption:hover .img-caption-text { transform: translateY(0); }
+
+/* ═══ MODALS ═══ */
+.modal-trigger { padding: 14px 36px; background: var(--blue); color: var(--white); border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13.5px;  transition: transform 0.25s var(--ease-out), box-shadow 0.3s ease; }
+.modal-trigger:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,108,255,0.25); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(10,10,20,0.3); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-panel { background: var(--white); border-radius: 28px; width: 100%; max-width: 520px; box-shadow: 0 32px 80px rgba(10,10,20,0.25); transform: translateY(24px) scale(0.97); transition: transform 0.4s var(--ease-out); overflow: hidden; }
+.modal-overlay.open .modal-panel { transform: translateY(0) scale(1); }
+.modal-panel-header { padding: 28px 32px 20px; border-bottom: 1px solid rgba(10,10,20,0.07); display: flex; align-items: flex-start; justify-content: space-between; }
+.modal-panel-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; letter-spacing: -0.03em; }
+.modal-panel-header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.modal-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid rgba(10,10,20,0.1); background: transparent; color: var(--muted); font-size: 16px;  display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.modal-close:hover { background: rgba(10,10,20,0.05); color: var(--dark); }
+.modal-panel-body { padding: 24px 32px 28px; font-size: 14px; color: var(--muted); line-height: 1.7; }
+.modal-panel-footer { padding: 18px 32px; border-top: 1px solid rgba(10,10,20,0.07); display: flex; gap: 10px; justify-content: flex-end; }
+.modal-btn-secondary { padding: 11px 24px; background: rgba(10,10,20,0.06); color: var(--dark); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;  transition: all 0.2s; }
+.modal-btn-secondary:hover { background: rgba(10,10,20,0.1); }
+.modal-btn-primary { padding: 11px 24px; background: var(--blue); color: var(--white); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;  transition: all 0.22s; }
+.modal-btn-primary:hover { background: #0f5ae0; box-shadow: 0 6px 20px rgba(26,108,255,0.25); }
+.modal-scale .modal-panel { transform: scale(0.85); transition: transform 0.4s var(--spring); }
+.modal-scale.open .modal-panel { transform: scale(1); }
+.modal-slide-up .modal-panel { transform: translateY(60px); transition: transform 0.5s var(--ease-out); }
+.modal-slide-up.open .modal-panel { transform: translateY(0); }
+
+/* ═══ NAVIGATION PATTERNS ═══ */
+.nav-demo-wrap { width: 100%; }
+
+/* Hamburger → X */
+.hamburger { width: 44px; height: 44px; background: rgba(255,255,255,0.55); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 12px;  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px; transition: background 0.3s ease; box-shadow: 0 2px 12px rgba(26,108,255,0.05); }
+.hamburger:hover { background: rgba(255,255,255,0.8); }
+.hamburger span { display: block; width: 20px; height: 1.5px; background: var(--dark); border-radius: 2px; transition: all 0.4s var(--ease-out); }
+.hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+.hamburger.open span { background: var(--blue); }
+
+/* Dropdown Menu */
+.dropdown-wrap { position: relative; display: inline-block; }
+.dropdown-trigger { padding: 12px 24px; background: rgba(255,255,255,0.55); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 14px; box-shadow: 0 2px 12px rgba(26,108,255,0.05), inset 0 1px 0 rgba(255,255,255,0.9); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--dark);  display: flex; align-items: center; gap: 8px; transition: all 0.25s var(--ease-out); }
+.dropdown-trigger:hover { background: rgba(255,255,255,0.8); }
+.dropdown-trigger .chev { transition: transform 0.3s var(--ease-out); color: var(--muted); display: flex; align-items: center; }
+.dropdown-wrap.open .dropdown-trigger .chev { transform: rotate(180deg); color: var(--blue); }
+.dropdown-menu { position: absolute; top: calc(100% + 8px); left: 0; min-width: 200px; background: var(--white); border-radius: 16px; box-shadow: 0 16px 48px rgba(10,10,20,0.15); padding: 8px; opacity: 0; transform: translateY(-8px) scale(0.96); pointer-events: none; transition: all 0.35s var(--ease-out); z-index: 10; }
+.dropdown-wrap.open .dropdown-menu { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+.dropdown-menu a { display: block; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; color: var(--dark); text-decoration: none; transition: background 0.2s ease, color 0.2s ease;  }
+.dropdown-menu a:hover { background: rgba(26,108,255,0.06); color: var(--blue); }
+
+/* Sticky Hide/Show — shown in scroll section */
+.sticky-demo { width: 100%; height: 50px; background: rgba(255,255,255,0.55); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.9); border-radius: 14px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 12px rgba(26,108,255,0.05); font-size: 12px; font-weight: 500; color: var(--muted); transition: transform 0.4s var(--ease-out), opacity 0.4s ease; }
+.sticky-demo.hidden { transform: translateY(-100%); opacity: 0; }
+
+/* Tab bar with sliding indicator */
+.tab-bar { display: flex; position: relative; background: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.85); border-radius: 14px; padding: 4px; box-shadow: 0 2px 12px rgba(26,108,255,0.05); }
+.tab-btn { flex: 1; padding: 10px 16px; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--muted);  border-radius: 10px; position: relative; z-index: 2; transition: color 0.3s ease; text-transform: uppercase; letter-spacing: 0.06em; }
+.tab-btn.active { color: var(--dark); }
+.tab-indicator { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(33.333% - 2.67px); background: var(--white); border-radius: 10px; box-shadow: 0 2px 8px rgba(26,108,255,0.1); transition: transform 0.6s var(--spring); z-index: 1; }
+
+/* ═══ DRAWER ═══ */
+.drawer-overlay { position: fixed; inset: 0; background: rgba(10,10,20,0.3); backdrop-filter: blur(8px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+.drawer-overlay.open { opacity: 1; pointer-events: all; }
+.drawer-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; max-width: 90vw; background: var(--white); box-shadow: -16px 0 60px rgba(10,10,20,0.15); z-index: 201; transform: translateX(100%); transition: transform 1s var(--ease-out); display: flex; flex-direction: column; border-radius: 24px 0 0 24px; }
+.drawer-panel.open { transform: translateX(0); }
+.drawer-header { padding: 24px 28px 20px; border-bottom: 1px solid rgba(10,10,20,0.07); display: flex; align-items: center; justify-content: space-between; }
+.drawer-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; letter-spacing: -0.03em; }
+.drawer-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid rgba(10,10,20,0.1); background: transparent; color: var(--muted); font-size: 16px;  display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.drawer-close:hover { background: rgba(10,10,20,0.05); color: var(--dark); }
+.drawer-body { flex: 1; padding: 24px 28px; overflow-y: auto; }
+.drawer-item { display: flex; align-items: center; gap: 16px; padding: 16px; margin-bottom: 12px; background: #f7f8fc; border-radius: 16px; transition: background 0.2s ease; }
+.drawer-item:hover { background: #eef0f8; }
+.drawer-item-img { width: 56px; height: 56px; border-radius: 12px; background: rgba(26,108,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.drawer-item-info { flex: 1; }
+.drawer-item-name { font-size: 14px; font-weight: 500; color: var(--dark); margin-bottom: 2px; }
+.drawer-item-meta { font-size: 12px; color: var(--muted); }
+.drawer-item-price { font-size: 14px; font-weight: 600; color: var(--dark); flex-shrink: 0; }
+.drawer-footer { padding: 20px 28px; border-top: 1px solid rgba(10,10,20,0.07); }
+.drawer-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.drawer-total-label { font-size: 13px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+.drawer-total-value { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; color: var(--dark); }
+.drawer-checkout { width: 100%; padding: 14px; background: var(--blue); color: var(--white); border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;  transition: all 0.22s; }
+.drawer-checkout:hover { background: #0f5ae0; box-shadow: 0 8px 24px rgba(26,108,255,0.3); }
+
+/* ═══ SCROLL-DRIVEN ═══ */
+.scroll-section { position: relative; }
+.scroll-section .section-header { margin-bottom: 64px; }
+.scroll-inner { max-width: 760px; margin: 0 auto; }
+
+/* Subsection label */
+.scroll-sub { margin-bottom: 16px; }
+.scroll-sub-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.scroll-sub-label::after { content: ''; flex: 1; height: 1px; background: rgba(10,10,20,0.08); }
+.scroll-sub-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.scroll-sub-desc code { display: inline-block; padding: 3px 8px; background: rgba(26,108,255,0.07); border: 1px solid rgba(26,108,255,0.15); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; color: var(--blue); }
+.scroll-block { margin-bottom: 80px; }
+
+/* Parallax — full width */
+.parallax-band { width: 100%; height: 500px; border-radius: 24px; overflow: hidden; position: relative; }
+.parallax-bg { position: absolute; left: 0; right: 0; top: -150px; bottom: -150px; background-size: cover; background-position: center; will-change: transform; }
+.parallax-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(26,108,255,0.15), rgba(10,10,20,0.4)); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+.parallax-overlay span { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 48px); font-weight: 300; color: var(--white); letter-spacing: -0.02em; }
+.parallax-overlay small { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Progress bar — sticky within section */
+.scroll-progress-track { width: 100%; height: 6px; background: rgba(10,10,20,0.06); border-radius: 6px; overflow: hidden; }
+.scroll-progress-fill { width: 0%; height: 100%; background: var(--blue); border-radius: 6px; transition: width 0.05s linear; }
+.scroll-progress-pct { font-family: 'Cormorant Garamond', serif; font-size: 72px; font-weight: 300; color: var(--blue); letter-spacing: -0.04em; line-height: 1; text-align: center; margin-top: 20px; }
+.scroll-progress-caption { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+
+/* Counter — big numbers */
+.counter-row { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; padding: 40px 0; }
+.counter-item { text-align: center; }
+.counter-num { font-family: 'Cormorant Garamond', serif; font-size: clamp(56px, 8vw, 96px); font-weight: 300; color: var(--blue); letter-spacing: -0.04em; line-height: 1; }
+.counter-label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 8px; }
+
+/* Stagger grid — wider */
+.stagger-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; width: 100%; }
+.stagger-box { height: 80px; background: rgba(26,108,255,0.06); border: 1px solid rgba(26,108,255,0.1); border-radius: 14px; opacity: 0; transform: translateY(24px) scale(0.9); transition: all 0.6s var(--ease-out); backdrop-filter: blur(8px); }
+.stagger-box.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+/* Directional reveals */
+.dir-reveal-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.dir-reveal-item { background: var(--card-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 32px 24px; text-align: center; transition: all 0.7s var(--ease-out); }
+.dir-reveal-item h4 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; margin-bottom: 6px; }
+.dir-reveal-item p { font-size: 12px; color: var(--muted); }
+
+.reveal-up { opacity: 0; transform: translateY(40px); }
+.reveal-left { opacity: 0; transform: translateX(-40px); }
+.reveal-right { opacity: 0; transform: translateX(40px); }
+.reveal-scale { opacity: 0; transform: scale(0.85); }
+.reveal-up.visible, .reveal-left.visible, .reveal-right.visible, .reveal-scale.visible { opacity: 1; transform: translate(0) scale(1); }
+
+/* ─── SCROLL REVEAL ─── */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── FOOTER ─── */
+footer { padding: 40px 48px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+/* ─── KEYFRAMES ─── */
+@keyframes fadeDown { from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.3)} }
+
+@media (max-width: 768px) {
+  nav { padding: 14px 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 120px 24px 80px; }
+  .section { padding: 64px 24px; }
+  .section-divider { margin: 0 24px; }
+  .component-grid { grid-template-columns: 1fr; }
+  footer { padding: 32px 24px; flex-direction: column; gap: 12px; }
+  .stagger-grid { grid-template-columns: repeat(3, 1fr); }
+  .counter-row { gap: 24px; }
+  .dir-reveal-row { grid-template-columns: 1fr; }
+  .parallax-band { height: 320px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="meshCanvas"></canvas>
+
+<div class="app">
+
+  <nav>
+    <div class="nav-logo"><div class="nav-logo-dot"></div> Motion Library</div>
+    <div class="nav-links">
+      <a href="#buttons">Buttons</a>
+      <a href="#links">Links</a>
+      <a href="#text">Text</a>
+      <a href="#inputs">Inputs</a>
+      <a href="#cards">Cards</a>
+      <a href="#accordion">Accordion</a>
+      <a href="#images">Images</a>
+      <a href="#modals">Modals</a>
+      <a href="#navigation">Nav</a>
+      <a href="#drawers">Drawers</a>
+      <a href="#scroll">Scroll</a>
+    </div>
+  </nav>
+
+  <div class="section-divider"></div>
+
+  <!-- 01 BUTTONS -->
+  <section class="section" id="buttons">
+    <div class="section-header reveal">
+      <h2>Button<br><em>Interactions</em></h2>
+      <span class="section-label">01 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Fade</div>
+        <div class="card-demo"><button class="btn-fade-solid">Button Text</button></div>
+        <div class="card-info">Solid fill fades to transparent, revealing border.<br><span class="code-wrap"><code>background: solid → transparent 0.6s</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Fill Left</div>
+        <div class="card-demo"><button class="btn-fill-left">Button Text</button></div>
+        <div class="card-info">Color wipes in from left edge on hover.<br><span class="code-wrap"><code>::before width 0 → 100% / 0.5s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Fill Bottom</div>
+        <div class="card-demo"><button class="btn-fill-bottom">Button Text</button></div>
+        <div class="card-info">Color floods up from bottom edge on hover.<br><span class="code-wrap"><code>::before height 0 → 100% / 0.5s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">04 — Fill Center</div>
+        <div class="card-demo"><button class="btn-fill-center">Button Text</button></div>
+        <div class="card-info">Color expands outward from center point.<br><span class="code-wrap"><code>width/height 0 → 100% / 0.5s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">05 — Magnetic Fill</div>
+        <div class="card-demo"><button class="btn-magnetic">Button Text</button></div>
+        <div class="card-info">Radial fill expands from center on hover.<br><span class="code-wrap"><code>::before width/height 0.6s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">06 — Scale Spring</div>
+        <div class="card-demo"><button class="btn-scale">Button Text</button></div>
+        <div class="card-info">Spring overshoot on hover, snappy press.<br><span class="code-wrap"><code>cubic-bezier(0.34, 1.56, 0.64, 1)</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">07 — Soft Press</div>
+        <div class="card-demo"><button class="btn-soft-press">Button Text</button></div>
+        <div class="card-info">Subtle lift on hover, sinks on press.<br><span class="code-wrap"><code>translateY(-2px) + shadow / 0.3s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">08 — Outline Shrink</div>
+        <div class="card-demo"><button class="btn-outline-shrink">Button Text</button></div>
+        <div class="card-info">Filled by default, hollows to outline on hover.<br><span class="code-wrap"><code>background → transparent / 0.4s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">09 — Glow Pulse</div>
+        <div class="card-demo"><button class="btn-glow">Button Text</button></div>
+        <div class="card-info">Fill + layered box-shadow glow effect.<br><span class="code-wrap"><code>background + box-shadow / 0.4s ease</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">10 — Arrow Slide</div>
+        <div class="card-demo"><button class="btn-arrow">Button Text <span class="arrow">→</span></button></div>
+        <div class="card-info">Gap increases and arrow translates right.<br><span class="code-wrap"><code>gap 0.4s + translateX(4px)</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">11 — Text Slide</div>
+        <div class="card-demo">
+          <button class="btn-slide"><div class="btn-slide-inner"><span>Button Text</span><span>Button Text →</span></div></button>
+        </div>
+        <div class="card-info">Duplicate label slides up to reveal arrow.<br><span class="code-wrap"><code>translateY(-48px) / 0.5s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">12 — Border Draw</div>
+        <div class="card-demo">
+          <button class="btn-draw"><svg><rect x="0" y="0" width="100%" height="100%"></rect></svg>Button Text</button>
+        </div>
+        <div class="card-info">Gray border by default, blue SVG stroke draws on hover.<br><span class="code-wrap"><code>stroke-dashoffset / 0.8s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 02 LINKS -->
+  <section class="section" id="links">
+    <div class="section-header reveal">
+      <h2>Underline<br><em>Text Links</em></h2>
+      <span class="section-label">02 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Slide Under</div>
+        <div class="card-demo"><div class="link-demo"><a href="#" class="link-slide" onclick="return false">Text Link</a></div></div>
+        <div class="card-info">Width animates from 0 to 100% left-to-right.<br><span class="code-wrap"><code>width / 0.5s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Swipe Through</div>
+        <div class="card-demo"><div class="link-demo"><a href="#" class="link-swipe" onclick="return false">Text Link</a></div></div>
+        <div class="card-info">Old line exits right, new line enters left.<br><span class="code-wrap"><code>scaleX / 0.5s smooth + origin swap</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Highlight Flood</div>
+        <div class="card-demo"><div class="link-demo"><a href="#" class="link-flood" onclick="return false">Text Link</a></div></div>
+        <div class="card-info">Background-size fills text from left.<br><span class="code-wrap"><code>background-size / 0.5s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">04 — Bracket Wrap</div>
+        <div class="card-demo"><div class="link-demo"><a href="#" class="link-bracket" onclick="return false">Text Link</a></div></div>
+        <div class="card-info">[ ] brackets fade in with spring translateX.<br><span class="code-wrap"><code>opacity + spring bezier</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">05 — Elastic Center</div>
+        <div class="card-demo"><div class="link-demo"><a href="#" class="link-elastic" onclick="return false">Text Link</a></div></div>
+        <div class="card-info">Line expands from center with spring overshoot.<br><span class="code-wrap"><code>left: 50% → 0, width: 0 → 100% / 0.5s spring</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">06 — Strikethrough</div>
+        <div class="card-demo"><div class="link-demo"><a href="#" class="link-strike" onclick="return false">Text Link</a></div></div>
+        <div class="card-info">Middle line crosses through, text fades.<br><span class="code-wrap"><code>top: 50% + width 0.5s</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 03 TEXT -->
+  <section class="section" id="text">
+    <div class="section-header reveal">
+      <h2>Text<br><em>Effects</em></h2>
+      <span class="section-label">03 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Blur Reveal</div>
+        <div class="card-demo"><div class="text-blur">Secret message</div></div>
+        <div class="card-info">Gaussian blur clears on hover.<br><span class="code-wrap"><code>filter: blur(6px) → 0 / 0.6s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Letter Spread</div>
+        <div class="card-demo"><div class="text-spread">EXPAND</div></div>
+        <div class="card-info">Letter-spacing widens with spring bounce.<br><span class="code-wrap"><code>letter-spacing 0.5s spring</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Char Stagger</div>
+        <div class="card-demo"><div class="text-stagger"><span>B</span><span>O</span><span>U</span><span>N</span><span>C</span><span>E</span><span>!</span></div></div>
+        <div class="card-info">Each character lifts with cascading delay.<br><span class="code-wrap"><code>translateY(-6px) + 30ms stagger</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">04 — Glitch</div>
+        <div class="card-demo"><div class="text-glitch" data-text="CORRUPT">CORRUPT</div></div>
+        <div class="card-info">Chromatic split with clip-path animation.<br><span class="code-wrap"><code>clip-path + translate offsets</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 04 INPUTS -->
+  <section class="section" id="inputs">
+    <div class="section-header reveal">
+      <h2>Input<br><em>Interactions</em></h2>
+      <span class="section-label">04 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Floating Label</div>
+        <div class="card-demo">
+          <div class="input-demo">
+            <div class="float-group">
+              <input type="text" class="float-input" id="floatInput" placeholder=" ">
+              <label class="float-label" for="floatInput">Email address</label>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">Label floats up and shrinks on focus.<br><span class="code-wrap"><code>top: 50% → 10px + font-size / 0.25s ease-out</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Search Expand</div>
+        <div class="card-demo">
+          <div class="input-demo">
+            <div class="search-wrap">
+              <input type="text" class="search-input" placeholder="Search…">
+              <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">Icon-only collapses, expands to full input on focus.<br><span class="code-wrap"><code>width: 44px → 260px / 0.5s ease-out</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Shake Error</div>
+        <div class="card-demo">
+          <div class="input-demo">
+            <div class="error-group">
+              <input type="text" class="error-input" id="errorInput" placeholder="Enter your name">
+              <div class="error-msg" id="errorMsg">This field is required</div>
+            </div>
+            <button class="error-btn" onclick="triggerError()">Validate</button>
+          </div>
+        </div>
+        <div class="card-info">Input shakes + border turns red, message slides in.<br><span class="code-wrap"><code>shake 0.5s + border-color #e53e3e</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 05 CARDS -->
+  <section class="section" id="cards">
+    <div class="section-header reveal">
+      <h2>Card<br><em>Hovers</em></h2>
+      <span class="section-label">05 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — 3D Tilt</div>
+        <div class="card-demo"><div class="hover-card card-tilt">Hover me — 3D perspective</div></div>
+        <div class="card-info">RotateX/Y with depth shadow.<br><span class="code-wrap"><code>perspective: 800px + rotate</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Gradient Border</div>
+        <div class="card-demo"><div class="hover-card card-gradient">Hover me — rainbow ring</div></div>
+        <div class="card-info">Conic gradient border with rotation.<br><span class="code-wrap"><code>conic-gradient + mask-composite</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Spotlight</div>
+        <div class="card-demo">
+          <div class="hover-card card-spotlight" onmousemove="moveSpotlight(event, this)" onmouseleave="hideSpotlight(this)">
+            <div class="spotlight"></div>Hover me — follow cursor
+          </div>
+        </div>
+        <div class="card-info">Radial gradient follows cursor position.<br><span class="code-wrap"><code>mousemove → radial-gradient</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">04 — Smooth Expand</div>
+        <div class="card-demo"><div class="hover-card card-expand">Hover me — grow</div></div>
+        <div class="card-info">Scale up with softened border-radius.<br><span class="code-wrap"><code>scale(1.05) + radius 28px / 0.6s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 06 ACCORDION -->
+  <section class="section" id="accordion">
+    <div class="section-header reveal">
+      <h2>Accordion<br><em>Collapse</em></h2>
+      <span class="section-label">06 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal" style="grid-column: 1 / -1; max-width: 600px;">
+        <div class="card-label">01 — Smooth Height</div>
+        <div class="card-demo" style="align-items: stretch;">
+          <div class="accordion">
+            <div class="accordion-item open">
+              <button class="accordion-trigger" onclick="toggleAccordion(this)">What is Motion Library? <span class="accordion-chevron">−</span></button>
+              <div class="accordion-body" style="max-height: 120px;"><div class="accordion-body-inner">A curated showcase of production-ready micro-interactions built with pure CSS. Spring physics, smooth easing, and Framer-grade transitions you can copy directly into any project.</div></div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-trigger" onclick="toggleAccordion(this)">Are these React components? <span class="accordion-chevron">+</span></button>
+              <div class="accordion-body"><div class="accordion-body-inner">No — everything is built with vanilla CSS and minimal JS. No frameworks, no dependencies. Each pattern can be dropped into any stack.</div></div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-trigger" onclick="toggleAccordion(this)">Can I use these in production? <span class="accordion-chevron">+</span></button>
+              <div class="accordion-body"><div class="accordion-body-inner">Absolutely. Every interaction is built with performance in mind — GPU-accelerated transforms, will-change hints, and smooth 60fps curves. Ship with confidence.</div></div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-trigger" onclick="toggleAccordion(this)">What easing curves are used? <span class="accordion-chevron">+</span></button>
+              <div class="accordion-body"><div class="accordion-body-inner">Three custom bezier curves: spring overshoot (0.34, 1.56, 0.64, 1), smooth deceleration (0.22, 1, 0.36, 1), and expo ease-out (0.16, 1, 0.3, 1).</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">Max-height animates open/close with chevron rotation.<br><span class="code-wrap"><code>max-height / 0.8s ease-out</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 07 IMAGES -->
+  <section class="section" id="images">
+    <div class="section-header reveal">
+      <h2>Image<br><em>Hovers</em></h2>
+      <span class="section-label">07 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Scale Zoom</div>
+        <div class="card-demo"><div class="img-hover-wrap img-scale"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop" alt=""></div></div>
+        <div class="card-info">Image scales up inside clipped container.<br><span class="code-wrap"><code>transform: scale(1.05) / 1.2s smooth</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Color Overlay</div>
+        <div class="card-demo"><div class="img-hover-wrap img-overlay"><img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&h=400&fit=crop" alt=""></div></div>
+        <div class="card-info">Blue overlay fades in with slight zoom.<br><span class="code-wrap"><code>::after background 0.5s</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Brighten</div>
+        <div class="card-demo"><div class="img-hover-wrap img-lighten"><img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop" alt=""></div></div>
+        <div class="card-info">Brightness filter lifts exposure on hover.<br><span class="code-wrap"><code>filter: brightness(1.3)</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">04 — Grayscale to Color</div>
+        <div class="card-demo"><div class="img-hover-wrap img-grayscale"><img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&h=400&fit=crop" alt=""></div></div>
+        <div class="card-info">Desaturated by default, color reveals on hover.<br><span class="code-wrap"><code>filter: grayscale(100%) → 0%</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">05 — Blur Peek</div>
+        <div class="card-demo"><div class="img-hover-wrap img-blur"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&h=400&fit=crop" alt=""></div></div>
+        <div class="card-info">Image starts blurred, sharpens on hover.<br><span class="code-wrap"><code>filter: blur(4px) → blur(0)</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">06 — Caption Slide</div>
+        <div class="card-demo"><div class="img-hover-wrap img-caption"><img src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?w=600&h=400&fit=crop" alt=""><div class="img-caption-text">Caption slides up on hover</div></div></div>
+        <div class="card-info">Caption + gradient slides from bottom edge.<br><span class="code-wrap"><code>translateY(100%) → 0</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 08 MODALS -->
+  <section class="section" id="modals">
+    <div class="section-header reveal">
+      <h2>Modal<br><em>Transitions</em></h2>
+      <span class="section-label">08 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Fade + Scale</div>
+        <div class="card-demo"><button class="modal-trigger" onclick="openModal('modal-1')">Open Modal</button></div>
+        <div class="card-info">Overlay fades, panel scales from 97% with translateY.<br><span class="code-wrap"><code>scale(0.97) + translateY(24px) / 0.4s ease-out</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Spring Pop</div>
+        <div class="card-demo"><button class="modal-trigger" onclick="openModal('modal-2')">Open Modal</button></div>
+        <div class="card-info">Panel pops from 85% with spring overshoot.<br><span class="code-wrap"><code>scale(0.85) → spring bezier</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Slide Up</div>
+        <div class="card-demo"><button class="modal-trigger" onclick="openModal('modal-3')">Open Modal</button></div>
+        <div class="card-info">Panel slides up from below viewport center.<br><span class="code-wrap"><code>translateY(60px) → 0 / 0.5s ease-out</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 09 NAVIGATION -->
+  <section class="section" id="navigation">
+    <div class="section-header reveal">
+      <h2>Navigation<br><em>Patterns</em></h2>
+      <span class="section-label">09 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Hamburger → X</div>
+        <div class="card-demo">
+          <button class="hamburger" id="hamburgerBtn" onclick="this.classList.toggle('open')">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+        <div class="card-info">Three bars morph to X with rotation + scale.<br><span class="code-wrap"><code>rotate(±45deg) + scaleX(0)</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">02 — Dropdown Menu</div>
+        <div class="card-demo">
+          <div class="dropdown-wrap" id="dropdown1">
+            <button class="dropdown-trigger" onclick="toggleDropdown('dropdown1')">Menu <span class="chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="dropdown-menu">
+              <a href="#" onclick="return false">Dashboard</a>
+              <a href="#" onclick="return false">Projects</a>
+              <a href="#" onclick="return false">Settings</a>
+              <a href="#" onclick="return false">Log Out</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">Scale + fade from top with eased curve.<br><span class="code-wrap"><code>scale(0.96) + translateY(-8px)</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="component-card reveal">
+        <div class="card-label">03 — Tab Bar Slider</div>
+        <div class="card-demo">
+          <div class="nav-demo-wrap">
+            <div class="tab-bar" id="tabBar">
+              <div class="tab-indicator" id="tabIndicator"></div>
+              <button class="tab-btn active" onclick="switchTab(0, this)">Design</button>
+              <button class="tab-btn" onclick="switchTab(1, this)">Develop</button>
+              <button class="tab-btn" onclick="switchTab(2, this)">Deploy</button>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">Active indicator slides with spring physics.<br><span class="code-wrap"><code>translateX() / 0.6s spring</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 10 DRAWERS -->
+  <section class="section" id="drawers">
+    <div class="section-header reveal">
+      <h2>Drawer<br><em>Panels</em></h2>
+      <span class="section-label">10 / 11</span>
+    </div>
+    <div class="component-grid">
+      <div class="component-card reveal">
+        <div class="card-label">01 — Slide from Right</div>
+        <div class="card-demo"><button class="modal-trigger" onclick="openDrawer()">Open Mini Cart</button></div>
+        <div class="card-info">Panel slides in from right edge with decelerated curve.<br><span class="code-wrap"><code>translateX(100%) → 0 / 1s cubic-bezier</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 11 SCROLL-DRIVEN -->
+  <section class="section scroll-section" id="scroll">
+    <div class="section-header reveal">
+      <h2>Scroll-Driven<br><em>Animations</em></h2>
+      <span class="section-label">11 / 11</span>
+    </div>
+
+    <div class="scroll-inner">
+
+    <!-- 01 Parallax -->
+    <div class="scroll-block">
+      <div class="scroll-sub reveal">
+        <div class="scroll-sub-label">01 — Parallax Layers</div>
+        <div class="scroll-sub-desc">Background image translates at a slower rate than scroll, creating depth. <span class="code-wrap"><code>translateY based on viewport offset</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="parallax-band reveal" id="parallaxWrap">
+        <div class="parallax-bg" id="parallaxBg" style="background-image: url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1200&h=800&fit=crop');"></div>
+        <div class="parallax-overlay">
+          <small>Scroll past to see the effect</small>
+          <span>Parallax Depth</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 Progress -->
+    <div class="scroll-block">
+      <div class="scroll-sub reveal">
+        <div class="scroll-sub-label">02 — Scroll Progress</div>
+        <div class="scroll-sub-desc">Bar width and number map to total page scroll percentage — live as you scroll. <span class="code-wrap"><code>scrollTop / scrollHeight × 100</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="reveal">
+        <div class="scroll-progress-track"><div class="scroll-progress-fill" id="progressFill"></div></div>
+        <div class="scroll-progress-pct" id="progressPct">0%</div>
+        <div class="scroll-progress-caption">of page scrolled</div>
+      </div>
+    </div>
+
+    <!-- 03 Counter -->
+    <div class="scroll-block">
+      <div class="scroll-sub reveal">
+        <div class="scroll-sub-label">03 — Counter Roll</div>
+        <div class="scroll-sub-desc">Numbers count up from zero when scrolled into view. <span class="code-wrap"><code>requestAnimationFrame increment</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="counter-row reveal">
+        <div class="counter-item"><div class="counter-num" data-target="40">0</div><div class="counter-label">Patterns</div></div>
+        <div class="counter-item"><div class="counter-num" data-target="11">0</div><div class="counter-label">Sections</div></div>
+        <div class="counter-item"><div class="counter-num" data-target="3">0</div><div class="counter-label">Easing Curves</div></div>
+        <div class="counter-item"><div class="counter-num" data-target="0">0</div><div class="counter-label">Dependencies</div></div>
+      </div>
+    </div>
+
+    <!-- 04 Stagger Grid -->
+    <div class="scroll-block">
+      <div class="scroll-sub reveal">
+        <div class="scroll-sub-label">04 — Stagger Grid</div>
+        <div class="scroll-sub-desc">Each box enters with cascading delay when the grid scrolls into view. <span class="code-wrap"><code>opacity + scale + 80ms stagger</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="stagger-grid" id="staggerGrid">
+        <div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div>
+        <div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div><div class="stagger-box"></div>
+      </div>
+    </div>
+
+    <!-- 05 Directional Reveals -->
+    <div class="scroll-block">
+      <div class="scroll-sub reveal">
+        <div class="scroll-sub-label">05 — Directional Reveals</div>
+        <div class="scroll-sub-desc">Elements enter from different directions as they scroll into the viewport. <span class="code-wrap"><code>translateX/Y + opacity</code><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+      </div>
+      <div class="dir-reveal-row">
+        <div class="dir-reveal-item reveal-left">
+          <h4>Slide Left</h4>
+          <p>translateX(-40px) → 0</p>
+        </div>
+        <div class="dir-reveal-item reveal-scale">
+          <h4>Scale Up</h4>
+          <p>scale(0.85) → 1</p>
+        </div>
+        <div class="dir-reveal-item reveal-right">
+          <h4>Slide Right</h4>
+          <p>translateX(40px) → 0</p>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- .scroll-inner -->
+
+  </section>
+  <div class="modal-overlay" id="modal-1" onclick="if(event.target===this)closeModal('modal-1')">
+    <div class="modal-panel">
+      <div class="modal-panel-header"><div><h3>Fade + Scale</h3><p>Default modal transition</p></div><button class="modal-close" onclick="closeModal('modal-1')">✕</button></div>
+      <div class="modal-panel-body">This modal fades the overlay while the panel scales up from 97% with a slight upward translate. The easing uses a custom cubic-bezier for a smooth, decelerating feel.</div>
+      <div class="modal-panel-footer"><button class="modal-btn-secondary" onclick="closeModal('modal-1')">Cancel</button><button class="modal-btn-primary" onclick="closeModal('modal-1')">Confirm</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay modal-scale" id="modal-2" onclick="if(event.target===this)closeModal('modal-2')">
+    <div class="modal-panel">
+      <div class="modal-panel-header"><div><h3>Spring Pop</h3><p>Bouncy scale entrance</p></div><button class="modal-close" onclick="closeModal('modal-2')">✕</button></div>
+      <div class="modal-panel-body">This variant uses a spring bezier curve that overshoots slightly before settling, giving the panel an energetic pop-in effect from 85% scale.</div>
+      <div class="modal-panel-footer"><button class="modal-btn-secondary" onclick="closeModal('modal-2')">Cancel</button><button class="modal-btn-primary" onclick="closeModal('modal-2')">Confirm</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay modal-slide-up" id="modal-3" onclick="if(event.target===this)closeModal('modal-3')">
+    <div class="modal-panel">
+      <div class="modal-panel-header"><div><h3>Slide Up</h3><p>Bottom-to-center entrance</p></div><button class="modal-close" onclick="closeModal('modal-3')">✕</button></div>
+      <div class="modal-panel-body">The panel translates upward from 60px below its resting position. Combined with the overlay fade, this creates a grounded, natural entrance.</div>
+      <div class="modal-panel-footer"><button class="modal-btn-secondary" onclick="closeModal('modal-3')">Cancel</button><button class="modal-btn-primary" onclick="closeModal('modal-3')">Confirm</button></div>
+    </div>
+  </div>
+
+  <!-- DRAWER -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer-panel" id="drawerPanel">
+    <div class="drawer-header"><h3>Your Cart</h3><button class="drawer-close" onclick="closeDrawer()">✕</button></div>
+    <div class="drawer-body">
+      <div class="drawer-item"><div class="drawer-item-img">👟</div><div class="drawer-item-info"><div class="drawer-item-name">Classic Runner</div><div class="drawer-item-meta">Size 10 · Qty 1</div></div><div class="drawer-item-price">$120</div></div>
+      <div class="drawer-item"><div class="drawer-item-img">🧢</div><div class="drawer-item-info"><div class="drawer-item-name">Logo Cap</div><div class="drawer-item-meta">One Size · Qty 1</div></div><div class="drawer-item-price">$35</div></div>
+      <div class="drawer-item"><div class="drawer-item-img">🧦</div><div class="drawer-item-info"><div class="drawer-item-name">Merino Socks</div><div class="drawer-item-meta">M/L · Qty 2</div></div><div class="drawer-item-price">$24</div></div>
+    </div>
+    <div class="drawer-footer">
+      <div class="drawer-total"><span class="drawer-total-label">Subtotal</span><span class="drawer-total-value">$179</span></div>
+      <button class="drawer-checkout" onclick="closeDrawer()">Checkout</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard</div>
+
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard</div>
+
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard</div>
+
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard</div>
+
+  <footer>
+    <span>Motion Library — Pure CSS Interactions</span>
+    <span>Built with intent, not dependencies</span>
+  </footer>
+
+</div>
+
+<script>
+// ─── MESH ───
+const canvas = document.getElementById('meshCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+const blobs = [{ x:0.15,y:0.2,r:0.48,c:'#c4d8ff',s:0.00028 },{ x:0.85,y:0.15,r:0.42,c:'#b8f0e0',s:0.00036 },{ x:0.5,y:0.75,r:0.52,c:'#dce8ff',s:0.00022 },{ x:0.92,y:0.8,r:0.38,c:'#ffd6f0',s:0.0003 }];
+let t = 0;
+function drawMesh() { t++; const W=canvas.width, H=canvas.height; ctx.clearRect(0,0,W,H); ctx.fillStyle='#eef2ff'; ctx.fillRect(0,0,W,H); blobs.forEach((b,i)=>{ const x=(b.x+Math.sin(t*b.s+i*1.3)*0.14)*W; const y=(b.y+Math.cos(t*b.s*1.2+i)*0.12)*H; const r=b.r*Math.min(W,H); const g=ctx.createRadialGradient(x,y,0,x,y,r); g.addColorStop(0,b.c+'b0'); g.addColorStop(1,b.c+'00'); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill(); }); requestAnimationFrame(drawMesh); }
+drawMesh();
+
+// ─── SCROLL REVEAL ───
+const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── SPOTLIGHT ───
+function moveSpotlight(e, card) { const rect = card.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const s = card.querySelector('.spotlight'); s.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, rgba(26,108,255,0.1), transparent)`; s.style.opacity = '1'; }
+function hideSpotlight(card) { card.querySelector('.spotlight').style.opacity = '0'; }
+
+// ─── SMOOTH SCROLL ───
+document.querySelectorAll('nav a').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const target = document.querySelector(a.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); });
+
+// ─── MODAL ───
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+// ─── DRAWER ───
+function openDrawer() { document.getElementById('drawerOverlay').classList.add('open'); document.getElementById('drawerPanel').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeDrawer() { document.getElementById('drawerOverlay').classList.remove('open'); document.getElementById('drawerPanel').classList.remove('open'); document.body.style.overflow = ''; }
+
+// ─── ACCORDION ───
+function toggleAccordion(trigger) {
+  const item = trigger.parentElement;
+  const body = item.querySelector('.accordion-body');
+  const isOpen = item.classList.contains('open');
+  // Close all
+  item.closest('.accordion').querySelectorAll('.accordion-item').forEach(i => {
+    i.classList.remove('open');
+    i.querySelector('.accordion-body').style.maxHeight = '0';
+    i.querySelector('.accordion-chevron').textContent = '+';
+  });
+  if (!isOpen) {
+    item.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+    item.querySelector('.accordion-chevron').textContent = '−';
+  }
+}
+
+// ─── INPUT: SHAKE ERROR ───
+function triggerError() {
+  const input = document.getElementById('errorInput');
+  const msg = document.getElementById('errorMsg');
+  if (!input.value.trim()) {
+    input.classList.add('shake');
+    msg.classList.add('show');
+    setTimeout(() => input.classList.remove('shake'), 600);
+  } else {
+    input.classList.remove('shake');
+    msg.classList.remove('show');
+  }
+}
+
+// ─── DROPDOWN ───
+function toggleDropdown(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  document.querySelectorAll('.dropdown-wrap.open').forEach(d => {
+    if (!d.contains(e.target)) d.classList.remove('open');
+  });
+});
+
+// ─── TAB BAR ───
+function switchTab(index, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabIndicator').style.transform = `translateX(${index * 100}%)`;
+}
+
+// ─── COPY CODE ───
+let toastTimer;
+function copyCode(btn) {
+  const code = btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.classList.add('copied');
+    setTimeout(() => btn.classList.remove('copied'), 1500);
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+  });
+}
+
+// ─── ESC ───
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+    closeDrawer();
+    document.body.style.overflow = '';
+  }
+});
+
+// ─── SCROLL-DRIVEN: PARALLAX ───
+window.addEventListener('scroll', () => {
+  const wrap = document.getElementById('parallaxWrap');
+  if (wrap) {
+    const rect = wrap.getBoundingClientRect();
+    const center = rect.top + rect.height / 2;
+    const viewCenter = window.innerHeight / 2;
+    const offset = ((center - viewCenter) / window.innerHeight) * 150;
+    document.getElementById('parallaxBg').style.transform = `translateY(${offset}px)`;
+  }
+});
+
+// ─── SCROLL-DRIVEN: PROGRESS BAR ───
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = Math.round((scrollTop / scrollHeight) * 100);
+  const fill = document.getElementById('progressFill');
+  const pctEl = document.getElementById('progressPct');
+  if (fill) { fill.style.width = pct + '%'; }
+  if (pctEl) { pctEl.textContent = pct + '%'; }
+});
+
+// ─── SCROLL-DRIVEN: COUNTER (re-triggerable) ───
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const el = entry.target;
+    const target = parseInt(el.getAttribute('data-target'));
+    if (entry.isIntersecting) {
+      let current = 0;
+      const duration = 1200;
+      const start = performance.now();
+      function count(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        current = Math.round(eased * target);
+        el.textContent = current;
+        if (progress < 1) requestAnimationFrame(count);
+      }
+      requestAnimationFrame(count);
+    } else {
+      el.textContent = '0';
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.counter-num').forEach(el => counterObserver.observe(el));
+
+// ─── SCROLL-DRIVEN: STAGGER GRID (re-triggerable) ───
+const staggerObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const boxes = entry.target.querySelectorAll('.stagger-box');
+    if (entry.isIntersecting) {
+      boxes.forEach((box, i) => {
+        setTimeout(() => box.classList.add('visible'), i * 80);
+      });
+    } else {
+      boxes.forEach(box => box.classList.remove('visible'));
+    }
+  });
+}, { threshold: 0.2 });
+const staggerGrid = document.getElementById('staggerGrid');
+if (staggerGrid) staggerObserver.observe(staggerGrid);
+
+// ─── SCROLL-DRIVEN: DIRECTIONAL REVEALS (re-triggerable) ───
+const dirObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    } else {
+      entry.target.classList.remove('visible');
+    }
+  });
+}, { threshold: 0.2 });
+document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right, .reveal-scale').forEach(el => dirObserver.observe(el));
+</script>
+
+</body>
+</html>
