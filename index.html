@@ -1913,6 +1913,14 @@ async function nextLeftGallery() {
  if (featuredAnimating) return;
  featuredAnimating = true;
  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const nextIndex = (featuredIndex + 1) % featuredStories.length;
+ const motionImages = featuredSlots.map(slot => slot.querySelector('img').cloneNode(true));
+ const nextImages = featuredSlots.map((slot, index) => featuredStories[(nextIndex + index) % featuredStories.length].image.cloneNode(true));
+ // Decode both sets before hiding the current images or handing off the overlay.
+ await Promise.all([...motionImages, ...nextImages].map(async image => {
+  image.loading = 'eager';
+  try { await image.decode(); } catch { /* Keep failed images from blocking navigation. */ }
+ }));
  leftGallery.scrollLeft = 0;
  const bounds = leftGallery.getBoundingClientRect();
  const boxes = featuredSlots.map(slot => slot.querySelector('img').getBoundingClientRect());
@@ -1920,7 +1928,6 @@ async function nextLeftGallery() {
  layer.className = 'featured-motion-layer';
  layer.setAttribute('aria-hidden', 'true');
  leftGallery.parentElement.appendChild(layer);
- const nextIndex = (featuredIndex + 1) % featuredStories.length;
  const caption = document.getElementById('featuredCaption');
  let captionUpdated = false;
  function updateFeaturedText() {
@@ -1934,7 +1941,7 @@ async function nextLeftGallery() {
  const motions = [];
  if (!reduced) {
   featuredSlots.forEach((slot, i) => {
-   const image = slot.querySelector('img').cloneNode(true);
+   const image = motionImages[i];
    const from = boxes[i];
    const to = i === 0 ? {left: from.left - from.width - 16, top: from.top, width: from.width, height: from.height} : boxes[i - 1];
    Object.assign(image.style, {position:'absolute', left:(from.left - bounds.left)+'px', top:(from.top - bounds.top)+'px', width:from.width+'px', height:from.height+'px', objectFit:'cover', transformOrigin:'top left', opacity:i === 0 ? '1' : '.5'});
@@ -1963,7 +1970,7 @@ async function nextLeftGallery() {
  featuredIndex = nextIndex;
  featuredSlots.forEach((slot, index) => {
   const story = featuredStories[(featuredIndex + index) % featuredStories.length];
-  slot.querySelector('img').replaceWith(story.image.cloneNode(true));
+  slot.querySelector('img').replaceWith(nextImages[index]);
   slot.querySelector('figcaption').replaceWith(story.caption.cloneNode(true));
  });
  layer.remove();
