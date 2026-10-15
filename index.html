@@ -2222,25 +2222,20 @@ window.addEventListener('resize', renderScrollMotion);
 renderScrollMotion();
 
 
-// Treat the first downward gesture as a complete headline fade, then pause
-// on the image until a new gesture arrives (including trackpad momentum).
+// Complete the headline fade once per pass, then release normal page scrolling.
 (function initializeBannerPause() {
  const run = document.querySelector('[data-scroll-effect="sequential-fade"]');
  const pin = run.querySelector('.scroll-motion-pin');
- let animating = false, holdingGesture = false, idleTimer, animationFrame;
- function endGestureSoon() {
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { if (!animating) holdingGesture = false; }, 220);
- }
+ let animating = false, completed = false;
  function advanceHeadline() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
   const header = document.querySelector('nav').getBoundingClientRect().height;
   const bounds = run.getBoundingClientRect();
   const distance = run.offsetHeight - pin.offsetHeight;
   const remaining = bounds.top + distance - header;
-  if (bounds.top > header + 2 || remaining <= 2 || bounds.bottom <= header) return false;
+  if (bounds.top > header + 2) { completed = false; return false; }
+  if (completed || remaining <= 2 || bounds.bottom <= header) return false;
   animating = true;
-  holdingGesture = true;
   const start = window.scrollY;
   const target = start + remaining;
   const started = performance.now();
@@ -2250,25 +2245,19 @@ renderScrollMotion();
    const t = Math.min(1, (now - started) / 800);
    const eased = t * t * (3 - 2 * t);
    window.scrollTo(0, start + (target - start) * eased);
-   if (t < 1) animationFrame = requestAnimationFrame(frame);
+   if (t < 1) requestAnimationFrame(frame);
    else {
     animating = false;
+    completed = true;
     document.documentElement.style.scrollBehavior = previousBehavior;
-    endGestureSoon();
    }
   }
-  animationFrame = requestAnimationFrame(frame);
+  requestAnimationFrame(frame);
   return true;
  }
  window.addEventListener('wheel', event => {
   if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-  if (holdingGesture) {
-   event.preventDefault();
-   endGestureSoon();
-  } else if (event.deltaY > 0 && advanceHeadline()) {
-   event.preventDefault();
-   endGestureSoon();
-  }
+  if (animating || (event.deltaY > 0 && advanceHeadline())) event.preventDefault();
  }, {passive: false});
  window.addEventListener('keydown', event => {
   if (event.target.closest('input, textarea, select, button, a, [contenteditable="true"]')) return;
@@ -2276,13 +2265,15 @@ renderScrollMotion();
    if (animating || (!event.repeat && advanceHeadline())) event.preventDefault();
   }
  });
- let touchStartY = null, touchCaptured = false;
- window.addEventListener('touchstart', event => { touchStartY = event.touches[0]?.clientY ?? null; touchCaptured = false; }, {passive: true});
+ window.addEventListener('scroll', () => {
+  if (!animating && run.getBoundingClientRect().top > document.querySelector('nav').getBoundingClientRect().height + 2) completed = false;
+ }, {passive: true});
+ let touchStartY = null;
+ window.addEventListener('touchstart', event => { touchStartY = event.touches[0]?.clientY ?? null; }, {passive: true});
  window.addEventListener('touchmove', event => {
   const y = event.touches[0]?.clientY;
   if (touchStartY === null || y === undefined) return;
-  if (animating || touchCaptured) event.preventDefault();
-  else if (touchStartY - y > 8 && advanceHeadline()) { touchCaptured = true; event.preventDefault(); }
+  if (animating || (touchStartY - y > 8 && advanceHeadline())) event.preventDefault();
  }, {passive: false});
 })();
 
