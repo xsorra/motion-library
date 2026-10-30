@@ -1022,6 +1022,40 @@ a.card-label:focus-visible { outline: 1px solid var(--dark); outline-offset: 4px
 .header-preview-mobile .store-product-meta {  }
 @media(prefers-reduced-motion:reduce) { .header-preview-logo { transition: none; } }
 
+/* Bullet reveals as the label moves right. */
+.link-bullet { position: relative; display: inline-block; color: var(--dark); text-decoration: none; }
+.link-bullet-text { display: inline-block; transition: transform .6s var(--smooth); }
+.link-bullet:hover .link-bullet-text, .link-bullet:focus-visible .link-bullet-text { transform: translateX(14px); }
+.link-bullet::before { content: ''; position: absolute; left: 0; top: 50%; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0; transform: translateY(-50%) scale(.5); transition: opacity .6s var(--smooth), transform .6s var(--smooth); }
+.link-bullet:hover::before, .link-bullet:focus-visible::before { opacity: 1; transform: translateY(-50%) scale(1); transition-delay: .2s; }
+@media(prefers-reduced-motion:reduce) { .link-bullet::before, .link-bullet-text { transition: none; } }
+
+/* Whole sentences transition vertically using global typography and easing. */
+.sentence-cycle { display: grid; overflow: hidden; width: 100%; text-align: center; }
+.sentence-cycle > span { grid-area: 1 / 1; align-self: center; opacity: 0; transform: translateY(100%); animation: sentenceCycle 12.8s var(--smooth) infinite; }
+.sentence-cycle > span:nth-child(2) { animation-delay: -9.6s; }
+.sentence-cycle > span:nth-child(3) { animation-delay: -6.4s; }
+.sentence-cycle > span:nth-child(4) { animation-delay: -3.2s; }
+@keyframes sentenceCycle {
+ 0%, 18.75% { opacity: 1; transform: translateY(0); }
+ 25% { opacity: 0; transform: translateY(-100%); }
+ 25.01%, 93.75% { opacity: 0; transform: translateY(100%); }
+ 100% { opacity: 1; transform: translateY(0); }
+}
+@media(prefers-reduced-motion:reduce) {
+ .sentence-cycle > span { animation: none; transform: none; }
+ .sentence-cycle > span:first-child { opacity: 1; }
+}
+
+
+/* Scattered images with an exact white logo intersection. */
+.logo-overlap-run { height: 220svh; position: relative; background: #fff; }
+.logo-overlap-stage { position: sticky; top: var(--nav-height,56px); height: calc(100svh - var(--nav-height,56px)); min-height: 360px; overflow: hidden; display: grid; place-items: center; }
+.logo-overlap-art { display: block; width: 100%; height: 100%; }
+.logo-overlap-word { font-family: 'DM Sans', sans-serif; font-size: 150px; font-weight: 400; letter-spacing: -10px; }
+.logo-overlap-note { position: absolute; bottom: 24px; left: 32px; color: #000; }
+@media(max-width:600px) { .logo-overlap-stage { height: 70svh; min-height: 400px; } .logo-overlap-art { width: 150%; max-width: none; margin-left: -25%; } .logo-overlap-note { left: 16px; bottom: 16px; } }
+@media(prefers-reduced-motion:reduce) { .logo-overlap-run { height: auto; } .logo-overlap-stage { position: relative; top: auto; } }
 </style>
 </head>
 <body id="top">
@@ -1166,13 +1200,14 @@ a.card-label:focus-visible { outline: 1px solid var(--dark); outline-offset: 4px
         <div class="body-small card-info">Dark text fades to the muted palette color on hover.<br><span class="code-wrap"><code class="label">color: dark → muted / 0.6s ease</code><button class="label copy-btn" aria-label="Copy color fade link code" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
       </div>
       <div class="component-card reveal"><a class="label card-label" id="links-08" href="#links-08">08 — Color · Wipe</a><div class="card-demo"><a href="#" class="label link-color-wipe" onclick="return false">Text Link</a></div><div class="body-small card-info">Text changes from dark to muted, moving from left to right.<br><span class="code-wrap"><code class="label">background-position: 100% → 0 / 0.6s smooth</code><button class="label copy-btn" aria-label="Copy color transition wipe settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M 5 15 H 4 A 2 2 0 0 1 2 13 V 4 A 2 2 0 0 1 4 2 H 13 A 2 2 0 0 1 15 4 V 5"/></svg></button></span></div></div>
+      <div class="component-card reveal"><a class="label card-label" id="links-09" href="#links-09">09 — Bullet Reveal</a><div class="card-demo"><a href="#" class="label link-bullet" onclick="return false"><span class="link-bullet-text">Text Link</span></a></div><div class="body-small card-info">The text slides right, then a small circle appears on the left.<br><span class="code-wrap"><code class="label">translateX(14px) / 0.6s smooth · bullet delay 0.2s</code><button class="label copy-btn" aria-label="Copy bullet reveal settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div></div>
     </div>
   </section>
 
   <div class="section-divider"></div>
 
   <!-- 04 INPUTS -->
-  <section class="section" id="text"><div class="section-header reveal"><h2 class="heading">Text</h2><span class="label section-label">03 / 11</span></div><div class="component-grid"><div class="component-card reveal"><a class="label card-label" id="text-01" href="#text-01">01 — Vertical Text Rotator</a><div class="card-demo"><div class="heading heading-sm text-rotator" aria-label="Made for designers, developers, and creators"><span>Made for</span><span class="text-rotator-window" aria-hidden="true"><span class="text-rotator-track"><span>designers</span><span>developers</span><span>creators</span><span>designers</span></span></span></div></div><div class="body-small card-info">One word slides upward while the sentence stays fixed.<br><span class="code-wrap"><code class="label">translateY · slide 0.6s · hold 2.4s · infinite</code><button class="label copy-btn" aria-label="Copy text rotator settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div></div><div class="component-card reveal"><a class="label card-label" id="text-02" href="#text-02">02 — Typewriter Loop</a><div class="card-demo"><div class="heading heading-sm typewriter-demo" aria-label="Made for designers, developers, and creators">Made for <span class="typewriter-word-slot"><span id="typewriterWord" aria-hidden="true">designers</span><span class="typewriter-caret" aria-hidden="true"></span></span></div></div><div class="body-small card-info">The final word types, pauses, and deletes in a loop.<br><span class="code-wrap"><code class="label">type 100ms · delete 60ms · hold 1.8s · loop</code><button class="label copy-btn" aria-label="Copy typewriter settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div></div></div></section><div class="section-divider"></div>
+  <section class="section" id="text"><div class="section-header reveal"><h2 class="heading">Text</h2><span class="label section-label">03 / 11</span></div><div class="component-grid"><div class="component-card reveal"><a class="label card-label" id="text-01" href="#text-01">01 — Vertical Text Rotator</a><div class="card-demo"><div class="heading heading-sm text-rotator" aria-label="Made for designers, developers, and creators"><span>Made for</span><span class="text-rotator-window" aria-hidden="true"><span class="text-rotator-track"><span>designers</span><span>developers</span><span>creators</span><span>designers</span></span></span></div></div><div class="body-small card-info">One word slides upward while the sentence stays fixed.<br><span class="code-wrap"><code class="label">translateY · slide 0.6s · hold 2.4s · infinite</code><button class="label copy-btn" aria-label="Copy text rotator settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div></div><div class="component-card reveal"><a class="label card-label" id="text-02" href="#text-02">02 — Typewriter Loop</a><div class="card-demo"><div class="heading heading-sm typewriter-demo" aria-label="Made for designers, developers, and creators">Made for <span class="typewriter-word-slot"><span id="typewriterWord" aria-hidden="true">designers</span><span class="typewriter-caret" aria-hidden="true"></span></span></div></div><div class="body-small card-info">The final word types, pauses, and deletes in a loop.<br><span class="code-wrap"><code class="label">type 100ms · delete 60ms · hold 1.8s · loop</code><button class="label copy-btn" aria-label="Copy typewriter settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div></div><div class="component-card reveal"><a class="label card-label" id="text-03" href="#text-03">03 — Sentence Slide & Fade</a><div class="card-demo"><div class="heading heading-sm sentence-cycle" role="img" aria-label="Make room for new ideas. See things from another perspective. Find beauty in the everyday. Keep moving toward what matters."><span aria-hidden="true">Make room for new ideas.</span><span aria-hidden="true">See things from another perspective.</span><span aria-hidden="true">Find beauty in the everyday.</span><span aria-hidden="true">Keep moving toward what matters.</span></div></div><div class="body-small card-info">The whole sentence moves up and fades out as the next enters immediately from below.<br><span class="code-wrap"><code class="label">translateY + opacity · transition 0.8s · hold 2.4s · loop</code><button class="label copy-btn" aria-label="Copy sentence slide and fade settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div></div></div></section><div class="section-divider"></div>
   <section class="section" id="inputs">
     <div class="section-header reveal">
       <h2 class="heading">Inputs</h2>
@@ -1552,6 +1587,20 @@ a.card-label:focus-visible { outline: 1px solid var(--dark); outline-offset: 4px
 <div class="store-editorial" data-header-tone="image"><span class="label">Outside, together.</span><h3 class="heading">A slower kind<br>of adventure.</h3><button class="label store-link" data-store-target="story">Read our story ↗</button></div>
 <div class="store-section store-story" data-header-tone="light" data-store-section="story"><span class="label">Fewer things. Better made.</span><h3 class="heading">Good company.<br>Better journeys.</h3><p class="body-copy">Considered layers for wherever the day takes you. Natural materials, quiet details, and pieces you’ll reach for season after season.</p><div class="body-small store-values"><span>Thoughtful materials</span><span>Designed to last</span><span>Room to explore</span></div></div>
 <div class="store-footer" data-header-tone="light"><span class="label header-preview-logo">Motion Library</span><p class="body-copy">For the everyday, and the days away.</p><div><button class="label store-link" data-store-target="arrivals">Collection</button><button class="label store-link" data-store-target="story">Our story</button><button class="label store-link" data-store-target="top">Back to top ↑</button></div><small class="body-small">© 2026 Motion Library · Storefront preview</small></div></div></div></div></div>
+
+<div class="scroll-block scroll-extra" id="scroll-15">
+  <div class="scroll-sub"><a class="label scroll-sub-label" href="#scroll-15" style="text-decoration:none">15 — Floating Images &amp; Logo Overlap</a>
+  <div class="body-small scroll-sub-desc">Scattered images float past a black logo on white. Only the letters overlapping an image turn white.<br><span class="code-wrap"><code class="label">sticky logo · scattered parallax · white overlap mask</code><button class="label copy-btn" aria-label="Copy logo overlap settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div></div>
+  <div class="logo-overlap-run"><div class="logo-overlap-stage">
+  <svg class="logo-overlap-art" viewBox="0 0 1200 760" role="img" aria-labelledby="logo-overlap-title logo-overlap-description">
+  <title id="logo-overlap-title">Motion Library — floating image overlap</title><desc id="logo-overlap-description">Five scattered landscape photographs move past the black Motion Library wordmark. The parts of the logo over photographs are white.</desc>
+  <defs><clipPath id="logo-overlap-mask" clipPathUnits="userSpaceOnUse"><rect data-overlap-clip="0" x="100" y="65" width="240" height="180"/><rect data-overlap-clip="1" x="790" y="85" width="270" height="190"/><rect data-overlap-clip="2" x="360" y="290" width="210" height="280"/><rect data-overlap-clip="3" x="880" y="460" width="215" height="180"/><rect data-overlap-clip="4" x="90" y="550" width="260" height="170"/></clipPath><text id="logo-overlap-text" class="logo-overlap-word" x="600" y="425" text-anchor="middle">Motion Library</text></defs>
+  <use href="#logo-overlap-text" fill="#000"/>
+  <image data-overlap-image="0" data-travel="-180" x="100" y="65" width="240" height="180" href="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&amp;fit=crop" preserveAspectRatio="xMidYMid slice"/><image data-overlap-image="1" data-travel="210" x="790" y="85" width="270" height="190" href="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&amp;fit=crop" preserveAspectRatio="xMidYMid slice"/><image data-overlap-image="2" data-travel="-240" x="360" y="290" width="210" height="280" href="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&amp;fit=crop" preserveAspectRatio="xMidYMid slice"/><image data-overlap-image="3" data-travel="-290" x="880" y="460" width="215" height="180" href="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&amp;fit=crop" preserveAspectRatio="xMidYMid slice"/><image data-overlap-image="4" data-travel="160" x="90" y="550" width="260" height="170" href="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&amp;fit=crop" preserveAspectRatio="xMidYMid slice"/>
+  <use href="#logo-overlap-text" fill="#fff" clip-path="url(#logo-overlap-mask)"/>
+  </svg><span class="label logo-overlap-note" aria-hidden="true">Scroll to move the images ↕</span>
+  </div></div>
+</div>
 </section>
 <div class="footer-reveal-region"><div class="footer-reveal-cover"><div class="scroll-block footer-reveal-description"><div class="scroll-sub"><div class="label scroll-sub-label">14 — Footer Reveal</div><div class="body-small scroll-sub-desc">The footer is revealed beneath the content at the end of the page.<br><span class="code-wrap"><code class="label">position: fixed · bottom: 0 · content overlap</code><button class="label copy-btn" aria-label="Copy footer reveal settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M 5 15 H 4 A 2 2 0 0 1 2 13 V 4 A 2 2 0 0 1 4 2 H 13 A 2 2 0 0 1 15 4 V 5"/></svg></button></span></div></div></div></div><footer class="reveal-footer"><div><span class="label footer-eyebrow">End of the collection</span><h2 class="heading">Keep things moving.</h2></div><a href="#top" onclick="return smoothReturnToTop()" class="label">Back to top <span aria-hidden="true">↑</span></a></footer></div>
 
@@ -2486,6 +2535,33 @@ window.addEventListener('resize', sizeTypewriterSlot);
 
 
 
+
+// Each clipping rectangle shares its photograph's transform, keeping the
+// white intersection exact throughout the scroll animation.
+(() => {
+ const run = document.querySelector('.logo-overlap-run');
+ const images = [...run.querySelectorAll('[data-overlap-image]')];
+ const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+ let frame = 0;
+ function render() {
+  frame = 0;
+  const rect = run.getBoundingClientRect();
+  const progress = reduced.matches ? .5 : Math.max(0, Math.min(1, (innerHeight - rect.top) / (innerHeight + rect.height)));
+  images.forEach(image => {
+   const i = Number(image.dataset.overlapImage);
+   const y = (progress - .5) * Number(image.dataset.travel) * 2;
+   const x = (progress - .5) * (i % 2 ? -38 : 38);
+   const transform = `translate(${x} ${y})`;
+   image.setAttribute('transform', transform);
+   run.querySelector(`[data-overlap-clip="${i}"]`).setAttribute('transform', transform);
+  });
+ }
+ function schedule() { if (!frame) frame = requestAnimationFrame(render); }
+ addEventListener('scroll', schedule, { passive: true });
+ addEventListener('resize', schedule);
+ reduced.addEventListener('change', schedule);
+ render();
+})();
 </script>
 
 </body>
