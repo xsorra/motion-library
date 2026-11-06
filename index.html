@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&family=DM+Sans:opsz,wght@9..40,400&display=swap" rel="stylesheet">
 <style>
+/* Components stay in one layer so accessibility overrides need no specificity escalation. */
+@layer components {
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
@@ -255,7 +257,7 @@ nav a:hover { color: var(--dark); }
 .dropdown-wrap.open .dropdown-trigger .chev { transform: rotate(180deg); color: var(--dark); }
 .dropdown-menu { position: absolute; top: 100%; left: 0; width: 100%; min-width: 0; background: var(--white);  border: 1px solid var(--border); border-top: 0; border-radius: 0; box-shadow: none; padding: 0; opacity: 0; transform: translateY(-8px) scale(1); pointer-events: none; transition: all 0.6s var(--ease-out); z-index: 10; }
 .dropdown-wrap.open .dropdown-menu { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
-.dropdown-menu a { display: flex; align-items: center; height: 54px; padding: 0 24px; border-radius: 0; font-size: 14px; font-weight: 400; color: var(--dark); text-decoration: none; transition: background 0.6s ease, color 0.6s ease;  }
+.dropdown-menu a { display: flex; align-items: center; height: 54px; padding: 0 24px; border-radius: 0; font-size: var(--type-label); font-weight: 400; color: var(--dark); text-decoration: none; transition: background 0.6s ease, color 0.6s ease;  }
 .dropdown-menu a:hover { background: rgba(8,21,38,0.06); color: var(--dark); }
 
 /* Sticky Hide/Show — shown in scroll section */
@@ -406,24 +408,24 @@ footer { padding: 40px 48px; display: flex; justify-content: space-between; alig
 .fade-quote { padding:64px 0; }
 .fade-quote blockquote {      color:#485365; margin:24px 0; }
 /* Square corners for every button, including inline styles. */
-button, input[type="button"], input[type="submit"], input[type="reset"], [role="button"] { border-radius: 0 !important; }
+button, input[type="button"], input[type="submit"], input[type="reset"], [role="button"] { border-radius: 0; }
 .tab-indicator { border-radius: 0; }
 /* Consistent typography for buttons and text links. */
 button, input[type="button"], input[type="submit"], input[type="reset"], [role="button"], a {
-  font-size: 12px !important;
+  font-size: 12px;
   text-transform: uppercase;
 }
 /* Square code labels beside copy buttons. */
-.code-wrap, .code-wrap code { border-radius: 0 !important; }
+.code-wrap, .code-wrap code { border-radius: 0; }
 /* Minimal input fields with a bottom border only. */
 .float-input, .search-input, .error-input {
-  background: transparent !important;
+  background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border: 0;
   border-bottom: 1px solid var(--border);
   border-radius: 0;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 .float-input, .error-input { padding-left: 0; padding-right: 0; }
 .float-label { left: 0; text-transform: uppercase; font-size: 12px; letter-spacing: 0.08em; }
@@ -490,7 +492,7 @@ button, input[type="button"], input[type="submit"], input[type="reset"], [role="
 .link-color:hover, .link-color:focus-visible { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .link-color { transition: none; } }
 /* Square tab surfaces in every state. */
-.tab-bar, .tab-btn, .tab-indicator { border-radius: 0 !important; }
+.tab-bar, .tab-btn, .tab-indicator { border-radius: 0; }
  .btn-draw svg { pointer-events: none; }
 .btn-draw:focus-visible { border-color: var(--border); }
 @media (prefers-reduced-motion: reduce) { .btn-draw rect { transition: none; } }
@@ -575,10 +577,7 @@ button, input[type="button"], input[type="submit"], input[type="reset"], [role="
 /* Keep resting copy feedback consistent; respect reduced motion globally. */
 .copy-btn:hover { background: var(--subtle-bg); }
 .copy-btn.copied, .copy-btn.copied:hover { background: var(--subtle-bg); }
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; transition-delay: 0s !important; }
-}
+
 .fade-scroll-cue { display: block; width: 100%; border: 0; background: transparent; padding: 0; color: var(--muted); font-family: inherit; }
 .fade-scroll-cue:hover { color: var(--dark); }
 
@@ -633,7 +632,7 @@ img, [role="img"], .img-hover-wrap { border-radius: 0; }
 .featured-motion-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
 .editorial-gallery-card:not(.is-featured) { cursor: pointer; }
 .editorial-gallery-card:focus-visible { outline: 1px solid var(--dark); outline-offset: 4px; }
-.cursor-gallery-arrow { right: 8px; width: 80px; height: 80px; border-radius: 50% !important; background: #fff; color: var(--dark); transform: translate(-50%, -50%); pointer-events: none; }
+.cursor-gallery-arrow { right: 8px; width: 80px; height: 80px; border-radius: 50%; background: #fff; color: var(--dark); transform: translate(-50%, -50%); pointer-events: none; }
 .cursor-gallery-arrow svg { width: 24px; height: 24px; }
 .gallery-stage:has(.cursor-gallery-arrow) { cursor: none; }
 @media (hover: none) { .cursor-gallery-arrow { pointer-events: auto; transform: translateY(-50%); } }
@@ -1056,6 +1055,30 @@ a.card-label:focus-visible { outline: 1px solid var(--dark); outline-offset: 4px
 .logo-overlap-note { position: absolute; bottom: 24px; left: 32px; color: #000; }
 @media(max-width:600px) { .logo-overlap-stage { height: 70svh; min-height: 400px; } .logo-overlap-art { width: 150%; max-width: none; margin-left: -25%; } .logo-overlap-note { left: 16px; bottom: 16px; } }
 @media(prefers-reduced-motion:reduce) { .logo-overlap-run { height: auto; } .logo-overlap-stage { position: relative; top: auto; } }
+
+/* Chrome FAQ: transition values inspected on google.com/chrome/. */
+.accordion-chrome .accordion-trigger,
+.accordion-chrome .accordion-item.open .accordion-trigger { padding: 24px 0 20px; font-family: 'DM Sans', sans-serif; font-size: 18px; text-transform: none; letter-spacing: normal; }
+.accordion-chrome .chrome-faq-panel { overflow: hidden; padding: 0; transition: padding .3s ease-out; }
+.accordion-chrome .open .chrome-faq-panel { padding: 0 0 32px 1px; }
+.accordion-chrome .chrome-faq-content { height: 0; overflow: hidden; transition: height .4s ease-out; }
+.accordion-chrome .chrome-faq-copy { margin: 0; padding-right: 24px; color: var(--muted); }
+.accordion-chrome .accordion-chevron { transition: transform .3s ease; }
+.accordion-chrome .accordion-chevron::before,
+.accordion-chrome .accordion-item.open .accordion-chevron::before { transform: rotate(0deg); transition: none; }
+.accordion-chrome .accordion-chevron::after,
+.accordion-chrome .accordion-item.open .accordion-chevron::after { transform: rotate(90deg); transition: none; }
+.accordion-chrome .open .accordion-chevron { transform: rotate(45deg); }
+@media(prefers-reduced-motion:reduce) {
+  .accordion-chrome .chrome-faq-panel, .accordion-chrome .chrome-faq-content, .accordion-chrome .accordion-chevron { transition: none; }
+}
+}
+
+/* Unlayered accessibility rules take precedence over component motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0s; animation-delay: 0s; transition-duration: 0s; transition-delay: 0s; }
+}
 </style>
 </head>
 <body id="top">
@@ -1266,28 +1289,24 @@ a.card-label:focus-visible { outline: 1px solid var(--dark); outline-offset: 4px
     </div>
     <div class="component-grid" style="grid-template-columns: minmax(0, 680px);">
       <div class="component-card reveal">
-        <a class="label card-label" id="accordion-01" href="#accordion-01">01 — Slide + Fade</a>
+        <a class="label card-label" id="accordion-01" href="#accordion-01">01 — FAQ Expand</a>
         <div class="card-demo" style="align-items: stretch;">
-          <div class="accordion accordion-fade">
-            <div class="accordion-item open">
-              <button class="label accordion-trigger" aria-expanded="true" aria-controls="accordion-accordion-fade-1" onclick="toggleAccordion(this)">What is Motion Library? <span class="accordion-chevron" aria-hidden="true"></span></button>
-              <div class="accordion-body" id="accordion-accordion-fade-1" style="max-height: 120px;"><div class="body-copy accordion-body-inner">A curated showcase of production-ready micro-interactions built with pure CSS. Spring physics, smooth easing, and Framer-grade transitions you can copy directly into any project.</div></div>
+          <div class="accordion accordion-chrome">
+            <div class="accordion-item">
+              <button class="label accordion-trigger" id="chrome-faq-trigger-1" aria-expanded="false" aria-controls="chrome-faq-panel-1" onclick="toggleChromeFaq(this)">How does the answer expand?<span class="accordion-chevron" aria-hidden="true"></span></button>
+              <div class="chrome-faq-panel" id="chrome-faq-panel-1" role="region" aria-labelledby="chrome-faq-trigger-1" inert><div class="chrome-faq-content"><div class="body-copy chrome-faq-copy">The answer expands to its measured height over 0.4 seconds with ease-out easing. The text stays fully visible while the panel opens.</div></div></div>
             </div>
             <div class="accordion-item">
-              <button class="label accordion-trigger" aria-expanded="false" aria-controls="accordion-accordion-fade-2" onclick="toggleAccordion(this)">Are these React components? <span class="accordion-chevron" aria-hidden="true"></span></button>
-              <div class="accordion-body" id="accordion-accordion-fade-2"><div class="body-copy accordion-body-inner">No — everything is built with vanilla CSS and minimal JS. No frameworks, no dependencies. Each pattern can be dropped into any stack.</div></div>
+              <button class="label accordion-trigger" id="chrome-faq-trigger-2" aria-expanded="false" aria-controls="chrome-faq-panel-2" onclick="toggleChromeFaq(this)">What happens to the plus icon?<span class="accordion-chevron" aria-hidden="true"></span></button>
+              <div class="chrome-faq-panel" id="chrome-faq-panel-2" role="region" aria-labelledby="chrome-faq-trigger-2" inert><div class="chrome-faq-content"><div class="body-copy chrome-faq-copy">The whole plus icon rotates 45 degrees into a close icon over 0.3 seconds, using CSS ease. Closing the answer reverses the rotation.</div></div></div>
             </div>
             <div class="accordion-item">
-              <button class="label accordion-trigger" aria-expanded="false" aria-controls="accordion-accordion-fade-3" onclick="toggleAccordion(this)">Can I use these in production? <span class="accordion-chevron" aria-hidden="true"></span></button>
-              <div class="accordion-body" id="accordion-accordion-fade-3"><div class="body-copy accordion-body-inner">Absolutely. Every interaction is built with performance in mind — GPU-accelerated transforms, will-change hints, and smooth 60fps curves. Ship with confidence.</div></div>
-            </div>
-            <div class="accordion-item">
-              <button class="label accordion-trigger" aria-expanded="false" aria-controls="accordion-accordion-fade-4" onclick="toggleAccordion(this)">What easing curves are used? <span class="accordion-chevron" aria-hidden="true"></span></button>
-              <div class="accordion-body" id="accordion-accordion-fade-4"><div class="body-copy accordion-body-inner">Three custom bezier curves: spring overshoot (0.34, 1.56, 0.64, 1), smooth deceleration (0.22, 1, 0.36, 1), and expo ease-out (0.16, 1, 0.3, 1).</div></div>
+              <button class="label accordion-trigger" id="chrome-faq-trigger-3" aria-expanded="false" aria-controls="chrome-faq-panel-3" onclick="toggleChromeFaq(this)">Can multiple answers stay open?<span class="accordion-chevron" aria-hidden="true"></span></button>
+              <div class="chrome-faq-panel" id="chrome-faq-panel-3" role="region" aria-labelledby="chrome-faq-trigger-3" inert><div class="chrome-faq-content"><div class="body-copy chrome-faq-copy">Only one answer stays open at a time. Selecting another question collapses the previous answer while expanding the new one. Selecting the open question closes it.</div></div></div>
             </div>
           </div>
         </div>
-        <div class="body-small card-info">The body fades in as its height expands.<br><span class="code-wrap"><code class="label">max-height + opacity / 0.6s ease-out</code><button class="label copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
+        <div class="body-small card-info">The answer expands as the plus rotates into a close icon. Opening another question closes the previous answer.<br><span class="code-wrap"><code class="label">expand / collapse: 0.4s ease-out · icon rotation: 45° / 0.3s ease</code><button class="label copy-btn" aria-label="Copy FAQ transition settings" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></div>
       </div>
     </div>
   </section>
@@ -1772,6 +1791,27 @@ function toggleAccordion(trigger) {
     body.style.maxHeight = body.scrollHeight + 'px';
   }
 }
+
+// Chrome FAQ: measured height keeps opening and closing durations consistent.
+function toggleChromeFaq(trigger) {
+  const accordion = trigger.closest('.accordion-chrome');
+  const wasOpen = trigger.getAttribute('aria-expanded') === 'true';
+  accordion.querySelectorAll('.accordion-item').forEach(item => {
+    const button = item.querySelector('.accordion-trigger');
+    const panel = item.querySelector('.chrome-faq-panel');
+    const content = item.querySelector('.chrome-faq-content');
+    const open = button === trigger && !wasOpen;
+    item.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', String(open));
+    panel.inert = !open;
+    content.style.height = open ? content.firstElementChild.getBoundingClientRect().height + 'px' : '0px';
+  });
+}
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.accordion-chrome .open .chrome-faq-content').forEach(content => {
+    content.style.height = content.firstElementChild.getBoundingClientRect().height + 'px';
+  });
+});
 
 // ─── INPUT: SHAKE ERROR ───
 function triggerError() {
